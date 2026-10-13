@@ -14,10 +14,25 @@
 
 BOOST_FIXTURE_TEST_SUITE(pow_tests, BasicTestingSetup)
 
+/**
+ * The get_next_work* vectors below are real Bitcoin blocks, so they are checked
+ * against Bitcoin's mainnet PoW parameters (Bitcurrency's own retargeting is
+ * covered by bitcurrency_tests).
+ */
+static Consensus::Params BitcoinPowParams(const ArgsManager& args)
+{
+    Consensus::Params consensus{CreateChainParams(args, ChainType::MAIN)->GetConsensus()};
+    consensus.powLimit = uint256{"00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
+    consensus.nPowTargetTimespan = 14 * 24 * 60 * 60;
+    consensus.nPowTargetSpacing = 10 * 60;
+    consensus.enforce_BIP94 = false;
+    return consensus;
+}
+
 /* Test calculation of next difficulty target with no constraints applying */
 BOOST_AUTO_TEST_CASE(get_next_work)
 {
-    const auto chainParams = CreateChainParams(*m_node.args, ChainType::MAIN);
+    const auto consensus = BitcoinPowParams(*m_node.args);
     int64_t nLastRetargetTime = 1261130161; // Block #30240
     CBlockIndex pindexLast;
     pindexLast.nHeight = 32255;
@@ -29,56 +44,56 @@ BOOST_AUTO_TEST_CASE(get_next_work)
     // reimplementing the same code that is written in pow.cpp. Rather than
     // copy that code, we just hardcode the expected result.
     unsigned int expected_nbits = 0x1d00d86aU;
-    BOOST_CHECK_EQUAL(CalculateNextWorkRequired(&pindexLast, nLastRetargetTime, chainParams->GetConsensus()), expected_nbits);
-    BOOST_CHECK(PermittedDifficultyTransition(chainParams->GetConsensus(), pindexLast.nHeight+1, pindexLast.nBits, expected_nbits));
+    BOOST_CHECK_EQUAL(CalculateNextWorkRequired(&pindexLast, nLastRetargetTime, consensus), expected_nbits);
+    BOOST_CHECK(PermittedDifficultyTransition(consensus, pindexLast.nHeight+1, pindexLast.nBits, expected_nbits));
 }
 
 /* Test the constraint on the upper bound for next work */
 BOOST_AUTO_TEST_CASE(get_next_work_pow_limit)
 {
-    const auto chainParams = CreateChainParams(*m_node.args, ChainType::MAIN);
+    const auto consensus = BitcoinPowParams(*m_node.args);
     int64_t nLastRetargetTime = 1231006505; // Block #0
     CBlockIndex pindexLast;
     pindexLast.nHeight = 2015;
     pindexLast.nTime = 1233061996;  // Block #2015
     pindexLast.nBits = 0x1d00ffff;
     unsigned int expected_nbits = 0x1d00ffffU;
-    BOOST_CHECK_EQUAL(CalculateNextWorkRequired(&pindexLast, nLastRetargetTime, chainParams->GetConsensus()), expected_nbits);
-    BOOST_CHECK(PermittedDifficultyTransition(chainParams->GetConsensus(), pindexLast.nHeight+1, pindexLast.nBits, expected_nbits));
+    BOOST_CHECK_EQUAL(CalculateNextWorkRequired(&pindexLast, nLastRetargetTime, consensus), expected_nbits);
+    BOOST_CHECK(PermittedDifficultyTransition(consensus, pindexLast.nHeight+1, pindexLast.nBits, expected_nbits));
 }
 
 /* Test the constraint on the lower bound for actual time taken */
 BOOST_AUTO_TEST_CASE(get_next_work_lower_limit_actual)
 {
-    const auto chainParams = CreateChainParams(*m_node.args, ChainType::MAIN);
+    const auto consensus = BitcoinPowParams(*m_node.args);
     int64_t nLastRetargetTime = 1279008237; // Block #66528
     CBlockIndex pindexLast;
     pindexLast.nHeight = 68543;
     pindexLast.nTime = 1279297671;  // Block #68543
     pindexLast.nBits = 0x1c05a3f4;
     unsigned int expected_nbits = 0x1c0168fdU;
-    BOOST_CHECK_EQUAL(CalculateNextWorkRequired(&pindexLast, nLastRetargetTime, chainParams->GetConsensus()), expected_nbits);
-    BOOST_CHECK(PermittedDifficultyTransition(chainParams->GetConsensus(), pindexLast.nHeight+1, pindexLast.nBits, expected_nbits));
+    BOOST_CHECK_EQUAL(CalculateNextWorkRequired(&pindexLast, nLastRetargetTime, consensus), expected_nbits);
+    BOOST_CHECK(PermittedDifficultyTransition(consensus, pindexLast.nHeight+1, pindexLast.nBits, expected_nbits));
     // Test that reducing nbits further would not be a PermittedDifficultyTransition.
     unsigned int invalid_nbits = expected_nbits-1;
-    BOOST_CHECK(!PermittedDifficultyTransition(chainParams->GetConsensus(), pindexLast.nHeight+1, pindexLast.nBits, invalid_nbits));
+    BOOST_CHECK(!PermittedDifficultyTransition(consensus, pindexLast.nHeight+1, pindexLast.nBits, invalid_nbits));
 }
 
 /* Test the constraint on the upper bound for actual time taken */
 BOOST_AUTO_TEST_CASE(get_next_work_upper_limit_actual)
 {
-    const auto chainParams = CreateChainParams(*m_node.args, ChainType::MAIN);
+    const auto consensus = BitcoinPowParams(*m_node.args);
     int64_t nLastRetargetTime = 1263163443; // NOTE: Not an actual block time
     CBlockIndex pindexLast;
     pindexLast.nHeight = 46367;
     pindexLast.nTime = 1269211443;  // Block #46367
     pindexLast.nBits = 0x1c387f6f;
     unsigned int expected_nbits = 0x1d00e1fdU;
-    BOOST_CHECK_EQUAL(CalculateNextWorkRequired(&pindexLast, nLastRetargetTime, chainParams->GetConsensus()), expected_nbits);
-    BOOST_CHECK(PermittedDifficultyTransition(chainParams->GetConsensus(), pindexLast.nHeight+1, pindexLast.nBits, expected_nbits));
+    BOOST_CHECK_EQUAL(CalculateNextWorkRequired(&pindexLast, nLastRetargetTime, consensus), expected_nbits);
+    BOOST_CHECK(PermittedDifficultyTransition(consensus, pindexLast.nHeight+1, pindexLast.nBits, expected_nbits));
     // Test that increasing nbits further would not be a PermittedDifficultyTransition.
     unsigned int invalid_nbits = expected_nbits+1;
-    BOOST_CHECK(!PermittedDifficultyTransition(chainParams->GetConsensus(), pindexLast.nHeight+1, pindexLast.nBits, invalid_nbits));
+    BOOST_CHECK(!PermittedDifficultyTransition(consensus, pindexLast.nHeight+1, pindexLast.nBits, invalid_nbits));
 }
 
 BOOST_AUTO_TEST_CASE(CheckProofOfWork_test_negative_target)
@@ -176,11 +191,21 @@ void sanity_check_chainparams(const ArgsManager& args, ChainType chain_type)
     BOOST_CHECK(!over);
     BOOST_CHECK(UintToArith256(consensus.powLimit) >= pow_compact);
 
-    // check max target * 4*nPowTargetTimespan doesn't overflow -- see pow.cpp:CalculateNextWorkRequired()
+    // Bitcurrency: max target * 4*nPowTargetTimespan may exceed 256 bits, which
+    // ScaleTarget() in pow.cpp handles. Check that retargeting from powLimit
+    // with the slowest possible period stays at powLimit instead of wrapping.
     if (!consensus.fPowNoRetargeting) {
-        arith_uint256 targ_max{UintToArith256(uint256{"ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"})};
-        targ_max /= consensus.nPowTargetTimespan*4;
-        BOOST_CHECK(UintToArith256(consensus.powLimit) < targ_max);
+        Consensus::Params strict{consensus};
+        strict.fPowAllowMinDifficultyBlocks = false;
+        const uint32_t limit_bits{UintToArith256(consensus.powLimit).GetCompact()};
+        const int64_t height{consensus.DifficultyAdjustmentInterval()};
+        BOOST_CHECK(PermittedDifficultyTransition(strict, height, limit_bits, limit_bits));
+        CBlockIndex last;
+        last.nHeight = height - 1;
+        last.nTime = 1'791'849'600 + consensus.nPowTargetTimespan * 4;
+        last.nBits = limit_bits;
+        strict.enforce_BIP94 = false; // only pindexLast is available here
+        BOOST_CHECK_EQUAL(CalculateNextWorkRequired(&last, 1'791'849'600, strict), limit_bits);
     }
 }
 

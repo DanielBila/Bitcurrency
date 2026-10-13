@@ -11,6 +11,26 @@
 #include <uint256.h>
 #include <util/check.h>
 
+#include <algorithm>
+#include <bit>
+
+/**
+ * Return target * timespan / target_timespan without overflowing 256 bits.
+ * Bitcurrency's powLimit is much larger than Bitcoin's, so near minimum
+ * difficulty the product can exceed 256 bits. In that case the lowest bits are
+ * dropped before multiplying (as Litecoin does); otherwise the result is
+ * exactly Bitcoin's.
+ */
+static arith_uint256 ScaleTarget(arith_uint256 target, int64_t timespan, int64_t target_timespan)
+{
+    const int shift{std::max(0, int(target.bits()) + std::bit_width(uint64_t(timespan)) - 256)};
+    target >>= shift;
+    target *= timespan;
+    target /= target_timespan;
+    target <<= shift;
+    return target;
+}
+
 unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock, const Consensus::Params& params)
 {
     assert(pindexLast != nullptr);
@@ -75,8 +95,7 @@ unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast, int64_t nF
         bnNew.SetCompact(pindexLast->nBits);
     }
 
-    bnNew *= nActualTimespan;
-    bnNew /= params.nPowTargetTimespan;
+    bnNew = ScaleTarget(bnNew, nActualTimespan, params.nPowTargetTimespan);
 
     if (bnNew > bnPowLimit)
         bnNew = bnPowLimit;
@@ -101,8 +120,7 @@ bool PermittedDifficultyTransition(const Consensus::Params& params, int64_t heig
         // Calculate the largest difficulty value possible:
         arith_uint256 largest_difficulty_target;
         largest_difficulty_target.SetCompact(old_nbits);
-        largest_difficulty_target *= largest_timespan;
-        largest_difficulty_target /= params.nPowTargetTimespan;
+        largest_difficulty_target = ScaleTarget(largest_difficulty_target, largest_timespan, params.nPowTargetTimespan);
 
         if (largest_difficulty_target > pow_limit) {
             largest_difficulty_target = pow_limit;
@@ -117,8 +135,7 @@ bool PermittedDifficultyTransition(const Consensus::Params& params, int64_t heig
         // Calculate the smallest difficulty value possible:
         arith_uint256 smallest_difficulty_target;
         smallest_difficulty_target.SetCompact(old_nbits);
-        smallest_difficulty_target *= smallest_timespan;
-        smallest_difficulty_target /= params.nPowTargetTimespan;
+        smallest_difficulty_target = ScaleTarget(smallest_difficulty_target, smallest_timespan, params.nPowTargetTimespan);
 
         if (smallest_difficulty_target > pow_limit) {
             smallest_difficulty_target = pow_limit;

@@ -546,7 +546,14 @@ public:
         fDefaultConsistencyChecks = true;
         m_is_mockable_chain = true;
 
-        m_assumeutxo_data = {};
+        m_assumeutxo_data = {
+            {   // For use by unit tests
+                .height = 110,
+                .hash_serialized = AssumeutxoHash{uint256{"b952555c8ab81fec46f3d4253b7af256d766ceb39fb7752b9d18cdf4a0141327"}},
+                .m_chain_tx_count = 111,
+                .blockhash = uint256{"4310f99f066f07a138a820e4131bbb32eb4f2cd2ed785403a8f12ffcc2dae668"},
+            },
+        };
 
         chainTxData = ChainTxData{
             .nTime = 0,

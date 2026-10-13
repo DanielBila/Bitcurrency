@@ -140,11 +140,22 @@ BOOST_AUTO_TEST_CASE(retarget)
     }
 
     // Blocks too slow at minimum difficulty: never easier than powLimit.
-    {
-        auto blocks = MakePeriod(consensus, target * 4, genesis_bits, genesis_bits);
+    // target * 4 * timespan exceeds 256 bits here; this used to wrap around.
+    for (const int64_t timespan : {target * 2, target * 4, target * 10}) {
+        auto blocks = MakePeriod(consensus, timespan, genesis_bits, genesis_bits);
         CBlockHeader next;
         const uint32_t new_bits = GetNextWorkRequired(&blocks.back(), &next, consensus);
         BOOST_CHECK_EQUAL(new_bits, UintToArith256(consensus.powLimit).GetCompact());
+        BOOST_CHECK(PermittedDifficultyTransition(consensus, 2016, genesis_bits, new_bits));
+    }
+
+    // Blocks 4x too slow from 4x the minimum difficulty: back to the genesis target.
+    {
+        auto blocks = MakePeriod(consensus, target * 4, 0x1e03fffc, 0x1e03fffc);
+        CBlockHeader next;
+        const uint32_t new_bits = GetNextWorkRequired(&blocks.back(), &next, consensus);
+        BOOST_CHECK_EQUAL(new_bits, genesis_bits);
+        BOOST_CHECK(PermittedDifficultyTransition(consensus, 2016, 0x1e03fffc, new_bits));
     }
 
     // BIP94: the new target is derived from the FIRST block of the period,
