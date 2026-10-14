@@ -621,6 +621,15 @@ add_subdirectory(doc)
 
 add_subdirectory(src)
 
+# Bitcurrency: ship executables as bitcurrency* while keeping upstream target names.
+foreach(target IN ITEMS bitcoin bitcoind bitcoin-node bitcoin-cli bitcoin-tx bitcoin-util
+                        bitcoin-wallet bitcoin-chainstate bitcoin-qt bitcoin-gui)
+  if(TARGET ${target})
+    string(REPLACE "bitcoin" "bitcurrency" output_name ${target})
+    set_target_properties(${target} PROPERTIES OUTPUT_NAME ${output_name})
+  endif()
+endforeach()
+
 include(Maintenance)
 setup_split_debug_script()
 add_windows_deploy_target()

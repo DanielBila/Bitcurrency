@@ -37,11 +37,11 @@ class Node:
         self.datadir = WORK / name
         self.datadir.mkdir(parents=True)
         self.rpcport = rpcport
-        subprocess.run([BIN / "bitcoind", f"-datadir={self.datadir}", f"-port={port}", f"-rpcport={rpcport}",
+        subprocess.run([BIN / "bitcurrencyd", f"-datadir={self.datadir}", f"-port={port}", f"-rpcport={rpcport}",
                         "-bind=127.0.0.1", "-listen=1", "-daemon", *extra], check=True, stdout=subprocess.DEVNULL)
 
     def cli(self, *args):
-        out = subprocess.run([BIN / "bitcoin-cli", f"-datadir={self.datadir}", f"-rpcport={self.rpcport}", "-rpcwait", *map(str, args)],
+        out = subprocess.run([BIN / "bitcurrency-cli", f"-datadir={self.datadir}", f"-rpcport={self.rpcport}", "-rpcwait", *map(str, args)],
                              check=True, capture_output=True, text=True).stdout.strip()
         try:
             return json.loads(out)
@@ -49,13 +49,13 @@ class Node:
             return out
 
     def stop(self):
-        subprocess.run([BIN / "bitcoin-cli", f"-datadir={self.datadir}", f"-rpcport={self.rpcport}", "stop"], capture_output=True)
+        subprocess.run([BIN / "bitcurrency-cli", f"-datadir={self.datadir}", f"-rpcport={self.rpcport}", "stop"], capture_output=True)
 
 
 def grind(block):
-    """Find a valid nonce with bitcoin-util grind."""
+    """Find a valid nonce with bitcurrency-util grind."""
     head = CBlockHeader.serialize(block).hex()
-    solved = subprocess.run([BIN / "bitcoin-util", "grind", head], check=True, capture_output=True, text=True).stdout.strip()
+    solved = subprocess.run([BIN / "bitcurrency-util", "grind", head], check=True, capture_output=True, text=True).stdout.strip()
     block.nNonce = from_hex(CBlockHeader(), solved).nNonce
     return block
 

@@ -334,7 +334,7 @@ def get_binary_paths(config):
         default_filename = os.path.join(
             config["environment"]["BUILDDIR"],
             "bin",
-            binary + config["environment"]["EXEEXT"],
+            ("bitcurrency" + binary[len("bitcoin"):] if binary.startswith("bitcoin") else binary) + config["environment"]["EXEEXT"],
         )
         setattr(paths, env_variable_name.lower(), os.getenv(env_variable_name, default=default_filename))
     # BITCOIN_CMD environment variable can be specified to invoke bitcoin

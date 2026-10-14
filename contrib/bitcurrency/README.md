@@ -25,18 +25,18 @@ cmake -B build -DENABLE_IPC=OFF -DBUILD_GUI=OFF -DBUILD_TESTS=OFF -DBUILD_UTIL=O
 cmake --build build -j4
 ```
 
-Os executáveis ficam em `build/bin/` (`bitcoind`, `bitcoin-cli` e `bitcoin-util`, que mantêm os nomes originais).
+Os executáveis ficam em `build/bin/` (`bitcurrencyd`, `bitcurrency-cli`, `bitcurrency-wallet`, `bitcurrency-tx` e `bitcurrency-util`).
 
 ## Rodar um nó e minerar
 
 ```bash
-build/bin/bitcoind -daemon -fallbackfee=0.0001
-build/bin/bitcoin-cli createwallet minha
-ADDR=$(build/bin/bitcoin-cli getnewaddress)
+build/bin/bitcurrencyd -daemon -fallbackfee=0.0001
+build/bin/bitcurrency-cli createwallet minha
+ADDR=$(build/bin/bitcurrency-cli getnewaddress)
 # o 3º argumento (maxtries) precisa ser alto: o padrão de 1.000.000 costuma não bastar para 1 bloco
-build/bin/bitcoin-cli generatetoaddress 101 "$ADDR" 1000000000
-build/bin/bitcoin-cli getbalance
-build/bin/bitcoin-cli stop
+build/bin/bitcurrency-cli generatetoaddress 101 "$ADDR" 1000000000
+build/bin/bitcurrency-cli getbalance
+build/bin/bitcurrency-cli stop
 ```
 
 Moedas mineradas só podem ser gastas depois de 100 confirmações.
@@ -51,7 +51,7 @@ nova fica presa nesse estado até alguém minerar um bloco.
 Para lançar, minere o primeiro bloco com o minerador interno, que não tem essa restrição:
 
 ```bash
-build/bin/bitcoin-cli generatetoaddress 1 "$ADDR" 1000000000
+build/bin/bitcurrency-cli generatetoaddress 1 "$ADDR" 1000000000
 ```
 
 Depois disso o nó sai do estado de sincronização e pools/mineradores externos funcionam. Se a rede
@@ -62,7 +62,7 @@ ficar mais de 24 h sem blocos, repita o procedimento (ou inicie um nó com `-max
 Ainda não há DNS seeds. Conecte os nós manualmente:
 
 ```bash
-build/bin/bitcoind -daemon -addnode=IP_DO_OUTRO_NO:7333
+build/bin/bitcurrencyd -daemon -addnode=IP_DO_OUTRO_NO:7333
 ```
 
 Para uma rede pública, adicione seus servidores em `vSeeds` (`src/kernel/chainparams.cpp`).
@@ -87,14 +87,14 @@ carteira**: sem ela ninguém mais consegue produzir blocos na signet.
 Minerar (com a carteira do operador carregada):
 
 ```bash
-CLI="build/bin/bitcoin-cli -signet"
-build/bin/bitcoind -signet -daemon
+CLI="build/bin/bitcurrency-cli -signet"
+build/bin/bitcurrencyd -signet -daemon
 $CLI loadwallet signet-operator
-contrib/signet/miner --cli="$CLI" generate --grind-cmd="build/bin/bitcoin-util grind" \
+contrib/signet/miner --cli="$CLI" generate --grind-cmd="build/bin/bitcurrency-util grind" \
     --address=$($CLI getnewaddress) --min-nbits --ongoing
 ```
 
-Outras pessoas só rodam `bitcoind -signet` e conectam ao seu nó (`-addnode=IP:37333`).
+Outras pessoas só rodam `bitcurrencyd -signet` e conectam ao seu nó (`-addnode=IP:37333`).
 
 Ao trocar o desafio, os bytes mágicos da signet mudam (são derivados do desafio), e carteiras
 criadas antes passam a ser recusadas ("Data is not in recognized format"), porque o arquivo guarda
