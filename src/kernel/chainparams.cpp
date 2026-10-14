@@ -553,6 +553,13 @@ public:
                 .m_chain_tx_count = 111,
                 .blockhash = uint256{"4310f99f066f07a138a820e4131bbb32eb4f2cd2ed785403a8f12ffcc2dae668"},
             },
+            {
+                // For use by test/functional/feature_assumeutxo.py and test/functional/tool_bitcoin_chainstate.py
+                .height = 299,
+                .hash_serialized = AssumeutxoHash{uint256{"d2b051ff5e8eef46520350776f4100dd710a63447a8e01d917e92e79751a63e2"}},
+                .m_chain_tx_count = 334,
+                .blockhash = uint256{"71dc6393575e7ea03e48ba78a8db429b822c16e9044af2aaea0fc6e85c61841a"},
+            },
         };
 
         chainTxData = ChainTxData{
