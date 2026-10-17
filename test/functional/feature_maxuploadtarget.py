@@ -14,6 +14,7 @@ if uploadtarget has been reached.
 from collections import defaultdict
 import time
 
+from test_framework.blocktools import TIME_GENESIS_BLOCK
 from test_framework.messages import (
     CInv,
     MSG_BLOCK,
@@ -65,7 +66,10 @@ class MaxUploadTest(BitcoinTestFramework):
         # Before we connect anything, we first set the time on the node
         # to be in the past, otherwise things break because the CNode
         # time counters can't be reset backward after initialization
-        old_time = int(time.time() - 2*60*60*24*7)
+        # Bitcurrency: the regtest genesis is recent, so use a "now" late enough for the
+        # past times below to still be after the genesis block.
+        self.now = max(int(time.time()), TIME_GENESIS_BLOCK + 15*60*60*24)
+        old_time = self.now - 2*60*60*24*7
         self.nodes[0].setmocktime(old_time)
 
         # Generate some old blocks
@@ -90,7 +94,7 @@ class MaxUploadTest(BitcoinTestFramework):
         big_old_block = int(big_old_block, 16)
 
         # Advance to two days ago
-        self.nodes[0].setmocktime(int(time.time()) - 2*60*60*24)
+        self.nodes[0].setmocktime(self.now - 2*60*60*24)
 
         # Mine one more block, so that the prior block looks old
         mine_large_block(self, self.wallet, self.nodes[0])
@@ -155,7 +159,7 @@ class MaxUploadTest(BitcoinTestFramework):
 
         # If we advance the time by 24 hours, then the counters should reset,
         # and p2p_conns[2] should be able to retrieve the old block.
-        self.nodes[0].setmocktime(int(time.time()))
+        self.nodes[0].setmocktime(self.now)
         p2p_conns[2].sync_with_ping()
         p2p_conns[2].send_and_ping(getdata_request)
         assert_equal(p2p_conns[2].block_receive_map[big_old_block], 1)
@@ -166,7 +170,7 @@ class MaxUploadTest(BitcoinTestFramework):
         self.nodes[0].disconnect_p2ps()
 
         self.log.info("Restarting node 0 with download permission, bloom filter support and 1MB maxuploadtarget")
-        self.restart_node(0, ["-whitelist=download@127.0.0.1", "-peerbloomfilters", "-maxuploadtarget=1"])
+        self.restart_node(0, ["-whitelist=download@127.0.0.1", "-peerbloomfilters", "-maxuploadtarget=1", f"-mocktime={self.now}"])
         # Total limit isn't reached after restart, but 1 MB is too small to serve historical blocks
         self.assert_uploadtarget_state(target_reached=False, serve_historical_blocks=False)
 

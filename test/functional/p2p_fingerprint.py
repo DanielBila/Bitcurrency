@@ -10,7 +10,7 @@ the node should pretend that it does not have it to avoid fingerprinting.
 
 import time
 
-from test_framework.blocktools import (create_block, create_coinbase)
+from test_framework.blocktools import (TIME_GENESIS_BLOCK, create_block, create_coinbase)
 from test_framework.messages import CInv, MSG_BLOCK
 from test_framework.p2p import (
     P2PInterface,
@@ -65,8 +65,12 @@ class P2PFingerprintTest(BitcoinTestFramework):
     def run_test(self):
         node0 = self.nodes[0].add_p2p_connection(P2PInterface())
 
+        # Bitcurrency: the regtest genesis is recent, so use a "now" late enough for the
+        # past times below to still be after the genesis block.
+        now = max(int(time.time()), TIME_GENESIS_BLOCK + 61 * 24 * 60 * 60)
+
         # Set node time to 60 days ago
-        self.nodes[0].setmocktime(int(time.time()) - 60 * 24 * 60 * 60)
+        self.nodes[0].setmocktime(now - 60 * 24 * 60 * 60)
 
         # Generating a chain of 10 blocks
         block_hashes = self.generatetoaddress(self.nodes[0], 10, self.nodes[0].get_deterministic_priv_key().address)
@@ -97,7 +101,7 @@ class P2PFingerprintTest(BitcoinTestFramework):
         node0.wait_for_header(hex(stale_hash), timeout=3)
 
         # Longest chain is extended so stale is much older than chain tip
-        self.nodes[0].setmocktime(0)
+        self.nodes[0].setmocktime(now)
         block_hash = int(self.generatetoaddress(self.nodes[0], 1, self.nodes[0].get_deterministic_priv_key().address)[-1], 16)
         assert_equal(self.nodes[0].getblockcount(), 14)
         node0.wait_for_block(block_hash, timeout=3)
