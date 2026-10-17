@@ -76,7 +76,7 @@ server=1
 # rede nova: ainda não há dados para estimar taxas
 fallbackfee=0.0001
 # IP do outro dispositivo (um por linha)
-addnode=192.168.15.102:7333
+addnode=IP_DO_OUTRO_DISPOSITIVO:7333
 ```
 
 O nó escuta na porta 7333 de todas as interfaces; libere essa porta no firewall (e faça
