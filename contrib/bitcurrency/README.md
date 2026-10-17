@@ -67,6 +67,33 @@ build/bin/bitcurrencyd -daemon -addnode=IP_DO_OUTRO_NO:7333
 
 Para uma rede pública, adicione seus servidores em `vSeeds` (`src/kernel/chainparams.cpp`).
 
+## Usar vários dispositivos
+
+Em cada dispositivo, crie `~/.bitcurrency/bitcurrency.conf`:
+
+```ini
+server=1
+# rede nova: ainda não há dados para estimar taxas
+fallbackfee=0.0001
+# IP do outro dispositivo (um por linha)
+addnode=192.168.15.102:7333
+```
+
+O nó escuta na porta 7333 de todas as interfaces; libere essa porta no firewall (e faça
+redirecionamento no roteador se o outro dispositivo estiver fora da sua rede local). Depois:
+
+```bash
+build/bin/bitcurrencyd -daemon
+build/bin/bitcurrency-cli getconnectioncount   # deve ser >= 1
+build/bin/bitcurrency-cli createwallet minha
+build/bin/bitcurrency-cli getnewaddress        # endereço para receber
+build/bin/bitcurrency-cli sendtoaddress bcy1... 10
+```
+
+A transação aparece na hora no outro nó como `untrusted_pending` (`getbalances`) e fica disponível
+depois que algum dispositivo minerar o próximo bloco. Com a dificuldade mínima, um bloco leva
+alguns segundos de CPU.
+
 ## Minerar um novo gênese
 
 Se mudar qualquer dado do gênese (frase, horário, chave, nBits), gere um novo bloco e atualize o
