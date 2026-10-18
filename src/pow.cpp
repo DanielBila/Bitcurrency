@@ -23,7 +23,7 @@
  */
 static arith_uint256 ScaleTarget(arith_uint256 target, int64_t timespan, int64_t target_timespan)
 {
-    const int shift{std::max(0, int(target.bits()) + std::bit_width(uint64_t(timespan)) - 256)};
+    const int shift{std::max(0, int(target.bits()) + int(std::bit_width(uint64_t(timespan))) - 256)};
     target >>= shift;
     target *= timespan;
     target /= target_timespan;

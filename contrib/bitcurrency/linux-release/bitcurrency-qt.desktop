@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Bitcurrency Core
+GenericName=Carteira Bitcurrency
+Comment=Carteira e nó completo da rede Bitcurrency (BCY)
+Exec=bitcurrency-qt %u
+Icon=bitcurrency
+Terminal=false
+Categories=Office;Finance;Network;P2P;
+MimeType=x-scheme-handler/bitcurrency;

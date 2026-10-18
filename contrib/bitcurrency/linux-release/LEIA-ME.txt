@@ -1,0 +1,33 @@
+Bitcurrency Core (BCY) para Linux x86_64
+========================================
+
+Requisitos: Linux 64 bits com glibc 2.35 ou mais nova
+(Ubuntu 22.04+, Debian 12+, Linux Mint 21+, Fedora 36+ etc.).
+
+Instalação
+----------
+    tar xzf bitcurrency-*-x86_64-linux-gnu.tar.gz
+    cd bitcurrency-*/
+    ./install.sh          # só para você (~/.local), sem senha
+    sudo ./install.sh     # ou para todos os usuários (/usr/local)
+
+Depois abra "Bitcurrency Core" no menu de aplicativos.
+
+Também dá para rodar sem instalar: ./bin/bitcurrency-qt
+
+Programas incluídos
+-------------------
+    bitcurrency-qt      carteira com interface gráfica
+    bitcurrencyd        nó em segundo plano (servidor)
+    bitcurrency-cli     linha de comando para falar com o nó
+    bitcurrency-wallet  ferramenta de carteira offline
+    bitcurrency-tx      criar/editar transações
+    bitcurrency-util    utilitários
+
+Seus dados (carteira e blockchain) ficam em ~/.bitcurrency
+FAÇA BACKUP DA SUA CARTEIRA.
+
+Desinstalar
+-----------
+    ./uninstall.sh        (ou sudo ./uninstall.sh)
+Isso não apaga ~/.bitcurrency.
