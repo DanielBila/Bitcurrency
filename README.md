@@ -84,10 +84,3 @@ Compilar
 
 O [guia da Bitcurrency](contrib/bitcurrency/README.md) também explica como conectar vários
 dispositivos, lançar a rede, gerar um novo gênese e operar a signet.
-
-Licença
--------
-
-Bitcurrency é distribuído sob a licença MIT, assim como o Bitcoin Core, do qual deriva.
-Veja [COPYING](COPYING) ou https://opensource.org/license/MIT. Créditos ao código original
-aos desenvolvedores do Bitcoin Core.
