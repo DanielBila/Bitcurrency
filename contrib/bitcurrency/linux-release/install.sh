@@ -14,6 +14,8 @@ for f in "$SRC"/bin/*; do install -Dm755 "$f" "$PREFIX/bin/$(basename "$f")"; do
 (cd "$SRC/share" && find . -type f) | while read -r f; do
     install -Dm644 "$SRC/share/$f" "$PREFIX/share/$f"
 done
+# Caminho absoluto: o menu esconde atalhos cujo programa não está no PATH da sessão
+sed -i "s|^Exec=bitcurrency-qt |Exec=$PREFIX/bin/bitcurrency-qt |" "$PREFIX/share/applications/bitcurrency-qt.desktop"
 
 command -v update-desktop-database >/dev/null && update-desktop-database -q "$PREFIX/share/applications" || true
 command -v gtk-update-icon-cache >/dev/null && gtk-update-icon-cache -q -t "$PREFIX/share/icons/hicolor" || true
