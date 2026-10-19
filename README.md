@@ -38,18 +38,20 @@ Especificações
 Instalar (Linux)
 ----------------
 
-Baixe `bitcurrency-31.1.0-x86_64-linux-gnu.tar.gz` na página de
-[Releases](https://github.com/DanielBila/Bitcurrency/releases/latest). O pacote funciona em
-Linux 64 bits com glibc 2.35 ou mais nova (Ubuntu 22.04+, Debian 12+, Fedora 36+ etc.).
+Abra o terminal (Ctrl + Alt + T) e rode:
 
 ```bash
-tar xzf bitcurrency-31.1.0-x86_64-linux-gnu.tar.gz
-cd bitcurrency-31.1.0
-./install.sh
+curl -fsSL https://raw.githubusercontent.com/DanielBila/Bitcurrency/bitcurrency/contrib/bitcurrency/instalar.sh | bash
 ```
 
-Depois abra **Bitcurrency Core** no menu de aplicativos. Para remover, rode `./uninstall.sh`
-(a carteira e a blockchain em `~/.bitcurrency` são mantidas).
+O script baixa o pacote da página de
+[Releases](https://github.com/DanielBila/Bitcurrency/releases/latest), confere o sha256,
+instala em `~/.local` e abre o **Bitcurrency Core**. Funciona em Linux 64 bits com glibc 2.35
+ou mais nova (Ubuntu 22.04+, Debian 12+, Fedora 36+ etc.). Para já conectar a um nó, passe o
+IP dele no fim: `... | bash -s -- IP_DO_NO`.
+
+Para remover, rode `~/.local/bin/bitcurrency-desinstalar` (a carteira e a blockchain em
+`~/.bitcurrency` são mantidas).
 
 Primeiros passos
 ----------------
