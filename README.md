@@ -1,21 +1,23 @@
 Bitcurrency (BCY)
 =================
 
-Bitcurrency é uma criptomoeda própria, com blockchain independente, baseada no
-[Bitcoin Core](https://github.com/bitcoin/bitcoin) v31.1. Ela usa o mesmo modelo
-de segurança do Bitcoin (prova de trabalho SHA-256d, validação completa de blocos
-e transações, carteira com SegWit e Taproot), mas tem rede, gênese, endereços e
-regras econômicas próprias. Moedas BCY não têm relação com bitcoins: as duas redes
-não se conectam.
+Bitcurrency é uma criptomoeda com blockchain própria, construída sobre o
+[Bitcoin Core](https://github.com/bitcoin/bitcoin) v31.1. Ela herda o modelo de segurança
+mais testado do mercado (prova de trabalho SHA-256d, validação completa de blocos e
+transações, SegWit e Taproot) e traz rede, bloco gênese, endereços e política monetária
+próprios: blocos 4× mais rápidos e um suprimento máximo de 84 milhões de BCY.
 
-O pacote inclui:
+A Bitcurrency é uma rede independente: os nós BCY só se conectam entre si.
 
-- **bitcurrency-qt** — carteira com interface gráfica (enviar, receber, histórico);
-- **bitcurrencyd** — o nó, que conecta à rede, valida e guarda a blockchain;
-- **bitcurrency-cli** — linha de comando para controlar o nó e minerar.
+Componentes
+-----------
 
-Características
----------------
+- **bitcurrency-qt**: carteira com interface gráfica (enviar, receber, histórico, URIs `bitcurrency:`);
+- **bitcurrencyd**: o nó completo, que conecta à rede, valida e armazena a blockchain;
+- **bitcurrency-cli**: interface de linha de comando (RPC) para controlar o nó e minerar.
+
+Especificações
+--------------
 
 | Parâmetro | Valor |
 |---|---|
@@ -26,16 +28,18 @@ Características
 | Halving | a cada 840.000 blocos (~4 anos) |
 | Suprimento máximo | 84.000.000 BCY |
 | Algoritmo | SHA-256d (prova de trabalho) |
-| Portas (mainnet) | 7333 (P2P) / 7332 (RPC) |
-| Endereços | `bcy1...` (SegWit/Taproot), `B...` (legacy), `b...` (P2SH) |
 | Proteção timewarp (BIP94) | ativa desde o gênese |
+| Endereços | `bcy1...` (SegWit/Taproot), `B...` (legacy), `b...` (P2SH) |
+| Derivação HD | `m/84h/7333h/...` (coin type 7333) |
+| Portas (mainnet) | 7333 (P2P) / 7332 (RPC) |
+| Gênese (mainnet) | `000008e43e5a666655a25fcca876dd75be95b7983a8ad01ea940c5ae9f341971` |
 | Pasta de dados | `~/.bitcurrency` (configuração em `bitcurrency.conf`) |
 
-Baixar e instalar (Linux)
--------------------------
+Instalar (Linux)
+----------------
 
 Baixe `bitcurrency-31.1.0-x86_64-linux-gnu.tar.gz` na página de
-[Releases](https://github.com/DanielBila/Bitcurrency/releases/latest). Ele funciona em
+[Releases](https://github.com/DanielBila/Bitcurrency/releases/latest). O pacote funciona em
 Linux 64 bits com glibc 2.35 ou mais nova (Ubuntu 22.04+, Debian 12+, Fedora 36+ etc.).
 
 ```bash
@@ -50,37 +54,34 @@ Depois abra **Bitcurrency Core** no menu de aplicativos. Para remover, rode `./u
 Primeiros passos
 ----------------
 
-A rede ainda não tem DNS seeds, então os nós precisam ser conectados manualmente. Crie
-`~/.bitcurrency/bitcurrency.conf`:
+Crie `~/.bitcurrency/bitcurrency.conf` indicando os nós aos quais se conectar:
 
 ```ini
 server=1
-# rede nova: ainda não há dados para estimar taxas
 fallbackfee=0.0001
-# IP de outro nó Bitcurrency (um por linha)
-addnode=IP_DO_OUTRO_NO:7333
+# um nó Bitcurrency por linha
+addnode=IP_DO_NO:7333
 ```
 
-Libere a porta 7333 no firewall. Para minerar pela linha de comando:
+Libere a porta 7333 no firewall para aceitar conexões de outros nós. Para minerar pela linha
+de comando:
 
 ```bash
 bitcurrency-cli createwallet minha
 bitcurrency-cli generatetoaddress 1 $(bitcurrency-cli getnewaddress) 1000000000
 ```
 
-Moedas mineradas só podem ser gastas depois de 100 confirmações, e transações só são
-confirmadas quando alguém da rede minera um bloco.
+Moedas mineradas podem ser gastas depois de 100 confirmações.
 
-Compilar
---------
+Compilar a partir do código
+---------------------------
 
-- **Instalador portátil para Linux** (Docker, gera o `.tar.gz` em `dist/`):
+- **Pacote portátil para Linux** (via Docker, gera o `.tar.gz` em `dist/`):
   ```bash
   contrib/bitcurrency/linux-release/build.sh
   ```
-  A primeira vez leva de 1 a 2 horas (compila o Qt); as seguintes, bem menos.
 - **Compilação local** para desenvolvimento: veja `doc/build-unix.md` e o
-  [guia da Bitcurrency](contrib/bitcurrency/README.md).
+  [guia técnico da Bitcurrency](contrib/bitcurrency/README.md).
 
-O [guia da Bitcurrency](contrib/bitcurrency/README.md) também explica como conectar vários
-dispositivos, lançar a rede, gerar um novo gênese e operar a signet.
+O [guia técnico](contrib/bitcurrency/README.md) cobre a operação da rede em detalhes: conectar
+vários nós, iniciar a mineração, gerar um novo bloco gênese e operar a signet.

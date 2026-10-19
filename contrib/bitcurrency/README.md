@@ -41,31 +41,29 @@ build/bin/bitcurrency-cli stop
 
 Moedas mineradas só podem ser gastas depois de 100 confirmações.
 
-## Lançar a rede (primeiro bloco)
+## Mineração com getblocktemplate
 
-O `getblocktemplate` (usado por softwares de mineração e pools) só funciona na mainnet quando o nó
-tem pelo menos um peer **e** não está em "sincronização inicial". O nó se considera sincronizando
-enquanto o último bloco tiver mais de 24 h (`-maxtipage`). Como o gênese é de 13/10/2026, uma rede
-nova fica presa nesse estado até alguém minerar um bloco.
-
-Para lançar, minere o primeiro bloco com o minerador interno, que não tem essa restrição:
+O `getblocktemplate` (usado por softwares de mineração e pools) atende na mainnet quando o nó tem
+pelo menos um peer e já concluiu a sincronização inicial, ou seja, quando o último bloco tem menos
+de 24 h (`-maxtipage`). Se a rede passar mais de 24 h sem blocos, produza um bloco com o minerador
+interno:
 
 ```bash
 build/bin/bitcurrency-cli generatetoaddress 1 "$ADDR" 1000000000
 ```
 
-Depois disso o nó sai do estado de sincronização e pools/mineradores externos funcionam. Se a rede
-ficar mais de 24 h sem blocos, repita o procedimento (ou inicie um nó com `-maxtipage=999999999`).
+Depois disso, pools e mineradores externos voltam a receber trabalho normalmente (também é possível
+iniciar o nó com `-maxtipage=999999999`).
 
 ## Conectar nós
 
-Ainda não há DNS seeds. Conecte os nós manualmente:
+Os nós se encontram por `addnode` (ou `connect`):
 
 ```bash
 build/bin/bitcurrencyd -daemon -addnode=IP_DO_OUTRO_NO:7333
 ```
 
-Para uma rede pública, adicione seus servidores em `vSeeds` (`src/kernel/chainparams.cpp`).
+Servidores de descoberta (DNS seeds) são configurados em `vSeeds` (`src/kernel/chainparams.cpp`).
 
 ## Usar vários dispositivos
 
@@ -73,7 +71,6 @@ Em cada dispositivo, crie `~/.bitcurrency/bitcurrency.conf`:
 
 ```ini
 server=1
-# rede nova: ainda não há dados para estimar taxas
 fallbackfee=0.0001
 # IP do outro dispositivo (um por linha)
 addnode=IP_DO_OUTRO_DISPOSITIVO:7333
