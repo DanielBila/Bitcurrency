@@ -126,3 +126,4 @@ Outras pessoas só rodam `bitcurrencyd -signet` e conectam ao seu nó (`-addnode
 Ao trocar o desafio, os bytes mágicos da signet mudam (são derivados do desafio), e carteiras
 criadas antes passam a ser recusadas ("Data is not in recognized format"), porque o arquivo guarda
 os bytes mágicos no `application_id` do SQLite.
+
