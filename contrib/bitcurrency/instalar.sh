@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Instala o Bitcurrency Core no Linux com um único comando:
-#   curl -fsSL https://raw.githubusercontent.com/DanielBila/Bitcurrency/bitcurrency/contrib/bitcurrency/instalar.sh | bash
+#   wget -qO- https://raw.githubusercontent.com/DanielBila/Bitcurrency/bitcurrency/contrib/bitcurrency/instalar.sh | bash
 # Para já conectar a um nó da rede, passe o IP dele:
-#   curl -fsSL https://raw.githubusercontent.com/DanielBila/Bitcurrency/bitcurrency/contrib/bitcurrency/instalar.sh | bash -s -- IP_DO_NO
+#   wget -qO- https://raw.githubusercontent.com/DanielBila/Bitcurrency/bitcurrency/contrib/bitcurrency/instalar.sh | bash -s -- IP_DO_NO
 set -euo pipefail
 
 VERSAO=31.1.0

@@ -41,7 +41,7 @@ Instalar (Linux)
 Abra o terminal (Ctrl + Alt + T) e rode:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/DanielBila/Bitcurrency/bitcurrency/contrib/bitcurrency/instalar.sh | bash
+wget -qO- https://raw.githubusercontent.com/DanielBila/Bitcurrency/bitcurrency/contrib/bitcurrency/instalar.sh | bash
 ```
 
 O script baixa o pacote da página de
