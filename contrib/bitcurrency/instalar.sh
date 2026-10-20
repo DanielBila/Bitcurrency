@@ -21,18 +21,31 @@ if [ -n "$glibc" ] && [ "$(printf '%s\n2.35\n' "$glibc" | sort -V | head -1)" !=
 fi
 echo "OK"
 
-# A carteira gráfica precisa da libxcb-cursor; sem ela a janela não abre.
+# Bibliotecas do sistema que a carteira gráfica usa; sem elas a janela não abre
+# (a libxcb-cursor costuma faltar mesmo em desktops completos).
 libs=$(ldconfig -p 2>/dev/null || /sbin/ldconfig -p 2>/dev/null || true)
-if ! grep -q 'libxcb-cursor\.so\.0' <<<"$libs"; then
-    passo "Instalando a biblioteca da interface gráfica (pode pedir a sua senha)"
+falta=0
+for so in libxcb-cursor.so.0 libfontconfig.so.1 libfreetype.so.6 libxkbcommon-x11.so.0 libxcb-icccm.so.4 \
+          libxcb-image.so.0 libxcb-keysyms.so.1 libxcb-randr.so.0 libxcb-render-util.so.0 libxcb-shape.so.0 \
+          libxcb-xkb.so.1 libX11-xcb.so.1; do
+    grep -qF "$so " <<<"$libs" || falta=1
+done
+if [ "$falta" = 1 ]; then
+    passo "Instalando as bibliotecas da interface gráfica (pode pedir a sua senha)"
+    if [ "$(id -u)" -eq 0 ]; then SUDO=; else SUDO=sudo; fi
     if command -v apt-get >/dev/null; then
-        sudo apt-get install -y libxcb-cursor0
+        $SUDO apt-get update -qq || true
+        $SUDO apt-get install -y libxcb-cursor0 libfontconfig1 libfreetype6 libxkbcommon-x11-0 libxcb-icccm4 \
+            libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-shape0 libxcb-xkb1 libx11-xcb1
     elif command -v dnf >/dev/null; then
-        sudo dnf install -y xcb-util-cursor
+        $SUDO dnf install -y xcb-util-cursor fontconfig freetype libxkbcommon-x11 xcb-util-wm xcb-util-image \
+            xcb-util-keysyms xcb-util-renderutil libX11-xcb
     elif command -v pacman >/dev/null; then
-        sudo pacman -S --needed --noconfirm xcb-util-cursor
+        $SUDO pacman -S --needed --noconfirm xcb-util-cursor fontconfig freetype2 libxkbcommon-x11 xcb-util-wm \
+            xcb-util-image xcb-util-keysyms xcb-util-renderutil
     elif command -v zypper >/dev/null; then
-        sudo zypper install -y libxcb-cursor0
+        $SUDO zypper install -y libxcb-cursor0 fontconfig libfreetype6 libxkbcommon-x11-0 libxcb-icccm4 \
+            libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libX11-xcb1
     else
         echo "Aviso: instale a biblioteca libxcb-cursor0 pelo gerenciador de pacotes do seu sistema."
     fi
